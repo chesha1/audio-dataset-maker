@@ -34,15 +34,16 @@ for audio_file in audio_files:
     # 获取不带后缀的原始文件名（例如“1.wav” -> “1”）
     original_root, original_ext = os.path.splitext(audio_file)
 
-    # 读取音频
-    wav = read_audio(audio_path, sampling_rate=48000)
+    # 读取音频并统一重采样到 16k
+    # 如果不指定 sampling_rate，则默认会用 16k。为了更清晰，显式写出来。
+    wav = read_audio(audio_path, sampling_rate=16000)
 
     # 执行 VAD
     start = time.time()
     speech_timestamps = get_speech_timestamps(
         wav,
         model,
-        sampling_rate=48000,
+        sampling_rate=16000,  # 这里的采样率与上面读入一致
         min_speech_duration_ms=min_speech_duration_ms,
         max_speech_duration_s=max_speech_duration_s,
     )
@@ -59,12 +60,14 @@ for audio_file in audio_files:
         segment_file_name = f"{original_root}-{idx}.wav"
         save_file_path = os.path.join(save_path, segment_file_name)
 
-        # 保存切分结果
+        # 从原始（已是 16k）波形中提取该片段
         audio_chunk = collect_chunks([timestamp], wav)
-        save_audio(save_file_path, audio_chunk, sampling_rate=48000)
 
-        # 记录片段时长
-        duration = (timestamp["end"] - timestamp["start"]) / 48000
+        # 保存切分结果，输出采样率同样设置为 16k
+        save_audio(save_file_path, audio_chunk, sampling_rate=16000)
+
+        # 记录片段时长，注意这里除以 16k
+        duration = (timestamp["end"] - timestamp["start"]) / 16000
         all_durations.append(duration)
 
 # 绘制所有切分结果的时长分布

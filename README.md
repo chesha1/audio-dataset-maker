@@ -10,7 +10,7 @@
 6. `python -u scripts\audio_duration.py` 统计数据集大小
 
 ## TODO
-- [ ] VAD 原始音频重采样到 16 khz 单声道 
+- [x] VAD 原始音频重采样到 16 khz 单声道 
 - [x] 支持 `raw/` 中多个文件的处理
 - [ ] VAD 多线程或使用 GPU 加速
 - [ ] 把短小切片合成，符合正态分布
